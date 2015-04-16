@@ -1,1 +1,1 @@
-# QuantumDynamics
+Third project of the International Course on Computational Physics (ICCP) of the university TU Delft. Here I solve the time-dependant Schrödinger equation. Goal: 2D simulation of the double-slit experiment.
