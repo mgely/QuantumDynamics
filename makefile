@@ -1,5 +1,5 @@
 make:
-	g++ -o program main.cpp header.h quantum.cpp quantum.h FFT.cpp FFT.h complex.h complex.cpp
+	g++ -o program main.cpp header.h 
 	./program
 	python data.py
 

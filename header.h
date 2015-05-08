@@ -6,8 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cmath>
-#include "complex.h"
-#include "FFT.h"
-#include "quantum.h"
+#include "/usr/local/include/fftw3.h"
 
 #endif
