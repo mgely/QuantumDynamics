@@ -2,9 +2,9 @@ import numpy as np
 
 
 # The spatial grid
-N_x = 8             # number of x-axis grid points
+N_x = 128             # number of x-axis grid points
 N_y = N_x             # number of x-axis grid points
-L_x = 200              # system exts from x=0 to x=L
+L_x = 100              # system exts from x=0 to x=L
 L_y = 100              # system exts from y=0 to y=L
 h_x = L_x / N_x        # x grid spacing
 h_y = L_y / N_y        # y grid spacing
@@ -19,8 +19,8 @@ V = np.zeros((N_x,N_y))
     # Harmonic
 #     V_x_0 = L_x/2
 #     V_y_0 = L_y/2
-# for i in xrange(0,N_x-1):
-#     for j in xrange(0,N_y-1):
+# for i in xrange(0,N_x):
+#     for j in xrange(0,N_y):
 #         V[i,j] = ((x[i]-V_x_0)^2.+(y[j]-V_y_0)^2.)
 #     
 # 
@@ -30,7 +30,7 @@ V = np.zeros((N_x,N_y))
 # V_width = 1
 # V_center = L_x/2+5
 # half_width = abs(0.5 * V_width)
-# for i in xrange(0,N_x-1):
+# for i in xrange(0,N_x):
 #     if (abs(i*h_x - V_center) <= half_width)
 #         V(i,:)  = V_height
 #     
@@ -41,27 +41,27 @@ V = np.zeros((N_x,N_y))
 # V_width = 5
 # V_center = L_x/2+10
 # half_width = abs(0.5 * V_width)
-# for i in xrange(0,N_x-1):
+# for i in xrange(0,N_x):
 #     if (abs(i*h_x - V_center) <= half_width)
 #         V(i,:)  = V_height * exp(-(x[i]-V_center)^2/ V_width)
 #     
 # 
 
     # Single slit
-V_height = 1000
-V_width_x = 2
-V_width_y = 5
-V_center = L_x/2+10
-half_width_x = abs(0.5 * V_width_x)
-half_width_y = abs(0.5 * V_width_y)
+# V_height = 1000
+# V_width_x = 2
+# V_width_y = 5
+# V_center = L_x/2+10
+# half_width_x = abs(0.5 * V_width_x)
+# half_width_y = abs(0.5 * V_width_y)
 
-for i in xrange(0,N_x-1):
-    if abs(i*h_x - V_center) <= half_width_x :
-        for j in xrange(0,N_y-1):
-            if (abs(j*h_y - L_y/2) <= half_width_y) & (j*h_y - L_y/2 >=0):
-                V[i,j] = 0.
-            else:
-                V[i,j] = V_height * exp(-(x[i]-V_center)^2/ V_width_x)
+# for i in xrange(0,N_x):
+#     if abs(i*h_x - V_center) <= half_width_x :
+#         for j in xrange(0,N_y):
+#             if (abs(j*h_y - L_y/2) <= half_width_y) & (j*h_y - L_y/2 >=0):
+#                 V[i,j] = 0.
+#             else:
+#                 V[i,j] = V_height * np.exp(-(x[i]-V_center)^2/ V_width_x)
             
         
     
@@ -69,21 +69,21 @@ for i in xrange(0,N_x-1):
 
 
 # Initial wave packet
-x_0 = L_x/2-20 # location of center
+x_0 = L_x/2 # location of center
 y_0 = L_y/2
 sigma_0 = 5*L_x / 100 # width of wave packet
 k_0 = 1.5 # average wavenumber in the x - direction
 
 gaussian = np.zeros((N_x,N_y)) 
-for i in xrange(0,N_x-1):
-    for j in xrange(0,N_y-1):
+for i in xrange(0,N_x):
+    for j in xrange(0,N_y):
         gaussian[i,j] = np.exp(-((x[i]-x_0)**2.+(y[j]-y_0)**2.)/ (2 * sigma_0 * sigma_0))
     
 
 
 psi  = np.zeros((N_x,N_y,2)) 
-for i in xrange(0,N_x-1):
-    for j in xrange(0,N_y-1):
+for i in xrange(0,N_x):
+    for j in xrange(0,N_y):
         psi[i,j] = np.array([np.cos(k_0*x[i])*gaussian[i,j],np.sin(k_0*x[i])*gaussian[i,j]]) # complex wavefunction
     
 
@@ -91,8 +91,8 @@ for i in xrange(0,N_x-1):
 # initialize the phase rotation factors
 T_exp_factor = np.zeros((N_x,N_y,2)) 
 V_exp_factor = np.zeros((N_x,N_y,2))
-for i in xrange(0,N_x-1):
-    for j in xrange(0,N_y-1):
+for i in xrange(0,N_x):
+    for j in xrange(0,N_y):
     # kinetic factor exp[-iT/h_bar tau]
         if i < N_x / 2:
             p_x = i
@@ -120,15 +120,11 @@ for i in xrange(0,N_x-1):
 V_exp_factor_file = open("V_exp_factor.dat","w")
 T_exp_factor_file = open("T_exp_factor.dat","w")
 psi_file = open("psi.dat","w")
-for i in xrange(0,N_x-1):
-    for j in xrange(0,N_y-1):
-        V_exp_factor_file.write("{} {}\t".format(V_exp_factor[i,j,0],V_exp_factor[i,j,1]))
-        T_exp_factor_file.write("{} {}\t".format(T_exp_factor[i,j,0],T_exp_factor[i,j,1]))
-        psi_file.write("{} {}\t".format(psi[i,j,0],psi[i,j,1]))
-    V_exp_factor_file.write("\n")
-    T_exp_factor_file.write("\n")
-    psi_file.write("\n")
+for i in xrange(0,N_x):
+    for j in xrange(0,N_y):
+        V_exp_factor_file.write("{} {}\n".format(V_exp_factor[i,j,0],V_exp_factor[i,j,1]))
+        T_exp_factor_file.write("{} {}\n".format(T_exp_factor[i,j,0],T_exp_factor[i,j,1]))
+        psi_file.write("{} {}\n".format(psi[i,j,0],psi[i,j,1]))
 
-
-dimensions = open("V_exp_factor.dat","w")
+dimensions = open("dimensions.dat","w")
 dimensions.write("{} {}".format(N_x,N_y))

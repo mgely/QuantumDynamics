@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cmath>
-#include "/usr/local/include/fftw3.h"
+#include "simulation.h"
+#include <fftw3.h>
+
+
 
 #endif
