@@ -1,59 +1,25 @@
 #include "header.h"
 using namespace std;
 
-simulation::simulation(){
+simulation::simulation(int N_x, int N_y, double L_x, double L_y, double dt, double simulation_time, int initial_conditions, int output) :
+N_x(N_x), N_y(N_y),L_x(L_x), L_y(L_y), dt(dt), simulation_time(simulation_time), initial_conditions(initial_conditions), output(output)
+{	
+	cout << "INITIALIZING..." << endl;
+	set_patial_grid();
+	allocate_memory();
 
-	ifstream V_exp_factor_file("V_exp_factor.dat");
-	ifstream T_exp_factor_file("T_exp_factor.dat");
-	ifstream psi_file("psi.dat");
-	ifstream dimensions("dimensions.dat");
-
-	// Dimensions
-	dimensions >> N_x >> N_y;
-
-	// Memory allocation
-	V_exp_factor = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N_x*N_y);
-	T_exp_factor = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N_x*N_y);
-	psi = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N_x*N_y);
-
-
-
-	fftw_complex * psi_temp;
-	psi_temp = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * N_x*N_y);
-
-	// Psi, V, T setup
-	for (int i = 0; i < N_x; ++i){	
-		for (int j = 0; j < N_y; ++j){
-			V_exp_factor_file >> V_exp_factor[i*N_x + j][0] >> V_exp_factor[i*N_x + j][1];
-			T_exp_factor_file >> T_exp_factor[i*N_x + j][0] >> T_exp_factor[i*N_x + j][1];
-			psi_file >> psi_temp[i*N_x + j][0] >> psi_temp[i*N_x + j][1];
-		}
-	}
-
-	// FFT choice of plan
 	
-	for (int i = 0; i < N_x*N_y; ++i){	
-		for (int j = 0; j < 2; ++j)
-			psi[i][j] = psi_temp[i][j];
-	}
+	setV();
+	setT();
+	setpsi();
+
+	cout << "OPTIMIZING FFTW..." << endl;
+	// FFT choice of plan
 	fft = fftw_plan_dft_2d(N_x, N_y,psi,psi,1, FFTW_PATIENT);
+	setpsi();
 
-	for (int i = 0; i < N_x*N_y; ++i){	
-		for (int j = 0; j < 2; ++j)
-			psi[i][j] = psi_temp[i][j];
-	}
 	ifft = fftw_plan_dft_2d(N_x, N_y,psi,psi,-1, FFTW_PATIENT);
-
-	for (int i = 0; i < N_x*N_y; ++i){	
-		for (int j = 0; j < 2; ++j)
-			psi[i][j] = psi_temp[i][j];
-	}
-
-	// Close files
-	V_exp_factor_file.close();
-	T_exp_factor_file.close();
-	psi_file.close();
-	dimensions.close();
+	setpsi();
 }
 
 void simulation::step(){
@@ -98,47 +64,79 @@ void simulation::step(){
 }
 
 void simulation::print_to_file(int flag){
-	ofstream psi_file("psi.dat");
+	FILE* to_plot = fopen("plot.dat","w");
 
 	if(flag == 0){ // "norm" case (returns psi squared)
-		for (int i = 0; i < N_x; ++i)
-		{	
+		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j)
-			{	
-				psi_file << psi[i*N_x + j][0]*psi[i*N_x + j][0] + psi[i*N_x + j][1]*psi[i*N_x + j][1] << ' ';
-			}
-			psi_file << '\n';
+				fprintf(to_plot, "%f %f %f\n", x[i] , y[j] , psi[i*N_x + j][0]*psi[i*N_x + j][0] + psi[i*N_x + j][1]*psi[i*N_x + j][1]);
+			fprintf(to_plot,"\n");
 		}
 	}
 
 	if(flag == 1){ // "real" case
-		for (int i = 0; i < N_x; ++i)
-		{	
+		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j)
-			{	
-				psi_file << psi[i*N_x + j][0] << ' ';
-			}
-			psi_file << '\n';
+				fprintf(to_plot, "%f %f %f\n", x[i] , y[j] , psi[i*N_x + j][0]);
+			fprintf(to_plot,"\n");
 		}
 	}
 
 	if(flag == 2){ // "imag" case
-		for (int i = 0; i < N_x; ++i)
-		{	
+		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j)
-			{	
-				psi_file << psi[i*N_x + j][1] << ' ';
-			}
-			psi_file << '\n';
+				fprintf(to_plot, "%f %f %f\n", x[i] , y[j] , psi[i*N_x + j][1]);
+			fprintf(to_plot,"\n");
 		}
 	}
 
-	psi_file.close();
+	fclose(to_plot);
 }
 
-	// for (int i = 0; i < N_x; ++i){	
-	// 	for (int j = 0; j < N_y; ++j){
-	// 		cout << psi[i*N_x + j][0] << ' ';
-	// 	}
-	// 	cout << '\n';
-	// }
+void simulation::simulate(){
+	
+	double t = 0;
+	pid_t gnupid = fork(); // After fork() has been called there are two different processes running:
+							// the parent process identified by gnupid > 0, and the child process gnupid == 0
+
+	// Child process : gnuplot
+	if (gnupid == 0)
+	{
+		ofstream cmdfile("gnusettings2d.txt");
+
+		cmdfile   << "set term x11" << "\n"
+				  << "set title \" time dependent Schrodinger wavefunction\" " << "\n"
+				  << "set time" << "\n"
+				  << "set xtics" <<"\n"
+				  << "set ytics" << "\n"
+				  << "set xrange [0:" << L_x << "]" << "\n"
+				  << "set yrange [0:" << L_y << "]" << "\n"
+				  << "plot \"plot.dat\" using 1:2:3 with image" << "\n"
+				  << "pause 0.1 " << "\n"
+				  << "reread;" ;
+
+		    cmdfile.flush();
+			cmdfile.close();
+
+			execlp("gnuplot","gnuplot","gnusettings2d.txt", (char*) NULL);
+	}
+
+	// Parent process: the solver
+	else if (gnupid > 0)
+	{
+		mkfifo("plot.dat", S_IWUSR | S_IRUSR); // making a FIFO file to write data for gnuplot
+		while (t<simulation_time)
+		{	
+			cout << "time : "<< t << endl;
+			step();
+			print_to_file(NORM);
+			t += dt;
+		}
+	}
+
+	else if ( gnupid == -1)
+		fprintf(stdout," Error forking process");
+
+	kill(gnupid,SIGTERM);
+	cout << "END OF SIMULATION" << endl;
+}

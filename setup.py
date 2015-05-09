@@ -2,7 +2,7 @@ import numpy as np
 
 
 # The spatial grid
-N_x = 128             # number of x-axis grid points
+N_x = 256            # number of x-axis grid points
 N_y = N_x             # number of x-axis grid points
 L_x = 100              # system exts from x=0 to x=L
 L_y = 100              # system exts from y=0 to y=L
@@ -117,12 +117,10 @@ for i in xrange(0,N_x):
     
 
 # Wrinting to files
-V_exp_factor_file = open("V_exp_factor.dat","w")
 T_exp_factor_file = open("T_exp_factor.dat","w")
 psi_file = open("psi.dat","w")
 for i in xrange(0,N_x):
     for j in xrange(0,N_y):
-        V_exp_factor_file.write("{} {}\n".format(V_exp_factor[i,j,0],V_exp_factor[i,j,1]))
         T_exp_factor_file.write("{} {}\n".format(T_exp_factor[i,j,0],T_exp_factor[i,j,1]))
         psi_file.write("{} {}\n".format(psi[i,j,0],psi[i,j,1]))
 
