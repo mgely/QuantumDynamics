@@ -2,19 +2,26 @@
 using namespace std;
 
 int main()
-{
-	int N = 1024; // Size of input function, should always be a 
-	ofstream file("data.dat");
-	int time_steps = 2;
-	double dt = 0.002;
+{	
 
-	std::vector<cpxnumber> wave (N);
-	for (int i = 0; i < N; ++i)
-	 	wave[i] = cpxnumber(exp(-(10.*((double)i-(double)N/2.)/(double)N)*(10.*((double)i-(double)N/2.)/(double)N)),0);
-		// wave[i] = cpxnumber(((double)i)/4.);
+	int N_x = 64;        // number of x-axis grid points
+	int N_y = N_x;      // number of x-axis grid points
+	double L_x = 100;              // system exts from x=0 to x=L
+	double L_y = 100;              // system exts from y=0 to y=L
+	int initial_conditions = TUNN;
+	int output = NORM;	
+	double dt = 0.1;
+	double simulation_time = 100;
 
-	quantum q = quantum(wave,N,dt);
-	q.simulation(file,time_steps);
-	
+	simulation s(N_x,
+		N_y,
+		L_x,
+		L_y,
+		dt, 
+		simulation_time,
+		initial_conditions,
+		output);
+
+	s.simulate();
 	return 0;
 }
