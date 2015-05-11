@@ -19,6 +19,10 @@ const int IMAG = 2;
 
 // initial conditions flags
 const int FREE = 0;
+const int HARM = 1;
+const int TUNN = 2;
+const int SLIT = 3;
+const int DOUB = 4;
 
 const double PI = 3.14159265358979323846;
 
