@@ -4,12 +4,12 @@ using namespace std;
 int main()
 {	
 
-	int N_x = 64;        // number of x-axis grid points
-	int N_y = N_x;      // number of x-axis grid points
-	double L_x = 100;              // system exts from x=0 to x=L
-	double L_y = 100;              // system exts from y=0 to y=L
-	int initial_conditions = TUNN;
-	int output = NORM;	
+	int N_x = 128;        			// number of x-axis grid points
+	int N_y = N_x;      
+	double L_x = 100;              	// system exts from x=0 to x=L
+	double L_y = 100;              
+	int initial_conditions = TUNN; 	// Choose from FREE, HARM (harmonic), TUNN (tunneling)
+	int output = NORM;				// Choose from NORM, REAL, IMAG for plotting 
 	double dt = 0.1;
 	double simulation_time = 100;
 

@@ -1,0 +1,10 @@
+set term x11
+set title " time dependent Schrodinger wavefunction" 
+set time
+set xtics
+set ytics
+set xrange [0:100]
+set yrange [0:100]
+plot "plot.dat" using 1:2:3 with image
+pause 0.001 
+reread;
