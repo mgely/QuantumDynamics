@@ -24,7 +24,7 @@ void simulation::setV(){
     	double V_y_0 = L_y/2;
 		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j){
-				V[i][j] = ((x[i]-V_x_0)*(x[i]-V_x_0)+(y[j]-V_y_0)*(y[j]-V_y_0));
+				V[i][j] = 0.02*((x[i]-V_x_0)*(x[i]-V_x_0)+(y[j]-V_y_0)*(y[j]-V_y_0));
 			}
 		}
 	}
@@ -33,7 +33,7 @@ void simulation::setV(){
 		double V_width = 2;
 		double V_center = L_x/2+10.;
 		double half_width = abs(0.5 * V_width);
-		double V_height = 2;
+		double V_height = 1;
 		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j)
 				V[i][j] = V_height * exp(-(x[i]-V_center)*(x[i]-V_center)/ V_width);
@@ -41,17 +41,33 @@ void simulation::setV(){
 	}  
 
 	else if (initial_conditions == SLIT){
-		double V_width = 1;
-		double slit_width = 1;
-		double V_center = L_x/2.;
-		double half_width = abs(0.5 * V_width);
+		double V_width = 2;
+		double slit_width = 12;
+		double V_center = L_x/2.+15;
+		double half_width = 0.5 * V_width;
+		double V_height = 1000000;
+		for (int i = 0; i < N_x; ++i){
+			for (int j = 0; j < N_y; ++j)
+				if(abs(y[i] - L_y/2.)> slit_width && abs(x[i] - V_center)< V_width)
+					V[i][j] = V_height;
+				else
+					V[i][j] = 0;
+		}
+	}  
+
+		else if (initial_conditions == DOUB){
+		double V_width = 2;
+		double slit_width = 2;
+		double inter_slit = 4;
+		double V_center = L_x/2.+15;
+		double half_width = 0.5 * V_width;
 		double V_height = 1000;
 		for (int i = 0; i < N_x; ++i){
 			for (int j = 0; j < N_y; ++j)
-				if(abs(y[i] - L_y/2.)< slit_width)
-					V[i][j] = 0;
+				if(abs(y[i] - (L_y/2.+inter_slit/2))> slit_width && abs(y[i] - (L_y/2.-inter_slit/2))> slit_width && abs(x[i] - V_center)< V_width)
+					V[i][j] = V_height;
 				else
-					V[i][j] = V_height * exp(-(x[i]-V_center)*(x[i]-V_center)/ V_width);
+					V[i][j] = 0;
 		}
 	}  
 
@@ -109,9 +125,9 @@ double gaussian[N_x][N_y];
 		k_0 = 0; // average wavenumber in the x - direction
 	}
 
-	if (initial_conditions == TUNN || initial_conditions == SLIT){
+	if (initial_conditions == TUNN || initial_conditions == SLIT || initial_conditions == DOUB){
 
-		x_0 = L_x/2.-10.; // location of center
+		x_0 = L_x/2.-15.; // location of center
 		y_0 = L_y/2.;
 		sigma_0 = 10.*L_x / 100.; // width of wave packet
 		k_0 = 1.5; // average wavenumber in the x - direction

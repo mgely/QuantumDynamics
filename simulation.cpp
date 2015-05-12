@@ -23,6 +23,7 @@ N_x(N_x), N_y(N_y),L_x(L_x), L_y(L_y), dt(dt), simulation_time(simulation_time),
 }
 
 void simulation::step(){
+	double temp;
 
 // first half potential phase rotation
 
@@ -30,8 +31,9 @@ void simulation::step(){
 	{	
 		for (int j = 0; j < N_y; ++j)
 		{
+			temp = psi[i*N_x + j][0];
 			psi[i*N_x + j][0] = psi[i*N_x + j][0] * V_exp_factor[i*N_x + j][0] - psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][1];
-			psi[i*N_x + j][1] = psi[i*N_x + j][0] * V_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][0];
+			psi[i*N_x + j][1] = temp * V_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][0];
 		}
 	}
 
@@ -45,8 +47,9 @@ void simulation::step(){
 	{	
 		for (int j = 0; j < N_y; ++j)
 		{
+			temp = psi[i*N_x + j][0];
 			psi[i*N_x + j][0] = psi[i*N_x + j][0] * T_exp_factor[i*N_x + j][0] - psi[i*N_x + j][1] * T_exp_factor[i*N_x + j][1];
-			psi[i*N_x + j][1] = psi[i*N_x + j][0] * T_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * T_exp_factor[i*N_x + j][0];
+			psi[i*N_x + j][1] = temp * T_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * T_exp_factor[i*N_x + j][0];
 		}
 	}
 
@@ -58,8 +61,9 @@ void simulation::step(){
 	{	
 		for (int j = 0; j < N_y; ++j)
 		{
+			temp = psi[i*N_x + j][0];
 			psi[i*N_x + j][0] = (psi[i*N_x + j][0] * V_exp_factor[i*N_x + j][0] - psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][1])/((double)N_x*(double)N_y);
-			psi[i*N_x + j][1] = (psi[i*N_x + j][0] * V_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][0])/((double)N_x*(double)N_y);
+			psi[i*N_x + j][1] = (temp * V_exp_factor[i*N_x + j][1] + psi[i*N_x + j][1] * V_exp_factor[i*N_x + j][0])/((double)N_x*(double)N_y);
 		}
 	}
 

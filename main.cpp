@@ -4,7 +4,7 @@ using namespace std;
 int main()
 {	
 
-	int N_x = 128;        			// number of x-axis grid points
+	int N_x = 256;        			// number of x-axis grid points
 	int N_y = N_x;      
 	double L_x = 100;              	// system exts from x=0 to x=L
 	double L_y = 100;              
